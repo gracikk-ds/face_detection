@@ -1,7 +1,9 @@
+import os
 import time
 import pickle
 import numpy as np
 from PIL import Image
+from mpipe import mesh
 import streamlit as st
 from pathlib import Path
 from dynaconf import settings
@@ -109,7 +111,8 @@ def add_new_embedding_option_func():
     st.sidebar.write(" ------ ")
     st.sidebar.write("Here you can upload new images to embedding collection")
     st.sidebar.write(
-        "The name of the uploaded image will be recognized as the embedding class name"
+        "The name of the uploaded image will be "
+        "recognized as the embedding class name"
     )
     # Create image uploader button
     embeddings_loadder = st.sidebar.file_uploader(
@@ -127,6 +130,8 @@ def add_new_embedding_option_func():
         for embedding in embeddings_loadder:
             result_img, embedding_class = process_the_image(embedding, main_flag=False)
             embedding_class = Path(embedding_class).stem
+            os.mkdir("../examples/" + embedding_class)
+            Image.fromarray(result_img).save("../examples/" + embedding_class + "/img.jpg")
             i = 0
             while i != 2:
                 image_container.append(result_img)
@@ -163,6 +168,7 @@ def run_detection_option_func():
 
         model = FaceDetector()
         result_img, embeddings = model(image)
+
         result = milvus_search(embeddings)
 
         if result_img is None:
@@ -171,8 +177,13 @@ def run_detection_option_func():
         else:
             result_img = result_img.astype(np.uint8)
             result_img = np.moveaxis(result_img, 0, -1)
-            fig = draw_objects(result_img, result[0])
-            st.plotly_chart(fig, use_container_width=True)
+            result_img = np.ascontiguousarray(result_img, dtype=np.uint8)
+            result_img = mesh(result_img)
+            img_path = [x for x in Path("../examples/" + result[0]).glob("*")][0]
+            img = np.array(Image.open(img_path))
+            fig = draw_objects(result_img, img, result[0])
+            st.pyplot(fig=fig)
+            # st.plotly_chart(fig, use_container_width=True)
             st.write("Product Detection, Classification")
 
         end = time.process_time()
