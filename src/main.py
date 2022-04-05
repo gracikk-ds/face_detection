@@ -98,6 +98,9 @@ def restore_collection(
 
     print("value_to_change: ", value_to_change)
 
+    for dir in [x for x in os.listdir(Path("../examples")) if int(x) > 5]:
+        os.rmdir("../examples/" + dir)
+
     st.info("The collection was successfully restored to the initial state.")
 
 
@@ -130,8 +133,10 @@ def add_new_embedding_option_func():
         for embedding in embeddings_loadder:
             result_img, embedding_class = process_the_image(embedding, main_flag=False)
             embedding_class = Path(embedding_class).stem
-            os.mkdir("../examples/" + embedding_class)
-            Image.fromarray(result_img).save("../examples/" + embedding_class + "/img.jpg")
+
+            max_dir = max([int(x) for x in os.listdir(Path("../examples"))])
+            os.mkdir("../examples/" + str(max_dir+1))
+            Image.fromarray(result_img).save("../examples/" + str(max_dir+1) + "/img.jpg")
             i = 0
             while i != 2:
                 image_container.append(result_img)
@@ -171,6 +176,9 @@ def run_detection_option_func():
 
         result = milvus_search(embeddings)
 
+        with open("pickles/mapper_faces.pickle", "rb") as handle:
+            mapper_dict = pickle.load(handle)
+
         if result_img is None:
             st.write("Objects not found")
 
@@ -179,7 +187,7 @@ def run_detection_option_func():
             result_img = np.moveaxis(result_img, 0, -1)
             result_img = np.ascontiguousarray(result_img, dtype=np.uint8)
             result_img = mesh(result_img)
-            img_path = [x for x in Path("../examples/" + result[0]).glob("*")][0]
+            img_path = [x for x in Path("../examples/" + str(mapper_dict[result[0]])).glob("*")][0]
             img = np.array(Image.open(img_path))
             fig = draw_objects(result_img, img, result[0])
             st.pyplot(fig=fig)
