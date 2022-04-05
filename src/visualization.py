@@ -8,7 +8,7 @@ def draw_objects(image_input, image_example, title_text):
     # create figure
     fig, axes = plt.subplots(1, 2, figsize=(15, 10))
 
-    fig.suptitle(f"Predicted name {title_text}", fontsize=14)
+    fig.suptitle(f"Predicted name: {title_text}", fontsize=14)
     axes[0].imshow(image_input)
     axes[0].set_title("Input image")
     axes[0].set_axis_off()
