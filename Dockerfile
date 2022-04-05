@@ -19,6 +19,7 @@ RUN pip install albumentations==0.5.2
 RUN pip install facenet_pytorch
 RUN pip install dynaconf
 RUN pip install sklearn
+RUN pip install mediapipe
 
 RUN mkdir /app
 
