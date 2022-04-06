@@ -18,11 +18,14 @@ RUN pip install plotly
 RUN pip install albumentations
 RUN pip install facenet_pytorch
 RUN pip install dynaconf
+RUN pip install sklearn
+RUN pip install mediapipe
 
 RUN mkdir /app
 
 ADD ./branded /app/branded
 ADD ./src /app/src
+ADD ./examples /app/examples
 
 WORKDIR /app/src
 
