@@ -1,5 +1,6 @@
 import os
 import time
+import shutil
 import pickle
 import numpy as np
 from PIL import Image
@@ -99,7 +100,7 @@ def restore_collection(
     print("value_to_change: ", value_to_change)
 
     for dir in [x for x in os.listdir(Path("../examples")) if int(x) > 5]:
-        os.rmdir("../examples/" + dir)
+        shutil.rmtree("../examples/" + dir)
 
     st.info("The collection was successfully restored to the initial state.")
 

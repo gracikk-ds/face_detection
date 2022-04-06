@@ -25,6 +25,7 @@ RUN mkdir /app
 
 ADD ./branded /app/branded
 ADD ./src /app/src
+ADD ./examples /app/examples
 
 WORKDIR /app/src
 
