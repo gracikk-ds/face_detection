@@ -1,0 +1,25 @@
+{
+  "development": {
+    "PROJECT_ID": "your project id",
+    "models_endpoints": {
+      "detector": "your model's endpoint",
+      "embedder": "your model's endpoint"
+    },
+    "milvus": {
+      "host": "your milvus host",
+      "port": "your milvus port"
+    }
+  },
+
+  "production": {
+    "PROJECT_ID": "your project id",
+    "models_endpoints": {
+      "detector": "your model's endpoint",
+      "embedder": "your model's endpoint"
+    },
+    "milvus": {
+      "host": "your milvus host",
+      "port": "your milvus port"
+    }
+  }
+}

@@ -12,6 +12,8 @@ dynaconf = "3.1.7"
 pymilvus = "2.0.0rc8"
 pre-commit = "^2.18.1"
 black = "^22.3.0"
+mediapipe = "^0.8.9"
+facenet-pytorch = "^2.5.2"
 
 [tool.poetry.dev-dependencies]
 
