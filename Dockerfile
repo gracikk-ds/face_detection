@@ -15,7 +15,7 @@ RUN pip install google-cloud google-cloud-aiplatform
 RUN pip install opencv-contrib-python
 RUN pip install opencv-python streamlit pandas Pillow pymilvus==2.0.0rc8
 RUN pip install plotly
-RUN pip install albumentations==0.5.2
+RUN pip install albumentations
 RUN pip install facenet_pytorch
 RUN pip install dynaconf
 RUN pip install sklearn
