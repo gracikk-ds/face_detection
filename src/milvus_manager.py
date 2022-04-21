@@ -5,13 +5,7 @@ from typing import List
 from dynaconf import settings
 from logging import getLogger
 from model import FaceDetector
-from pymilvus import (
-    connections,
-    FieldSchema,
-    CollectionSchema,
-    DataType,
-    Collection
-)
+from pymilvus import connections, FieldSchema, CollectionSchema, DataType, Collection
 
 
 log = getLogger("face-detection")
@@ -53,7 +47,7 @@ def milvus_search(
 
     search_params = {"metric_type": "L2", "params": {"nprobe": 1024}}
 
-    result_ids = connection.search(
+    results = connection.search(
         collection_name=collection_name,
         data=embeddings,
         anns_field="embeddings",
@@ -62,7 +56,8 @@ def milvus_search(
         expression=None,
     )
 
-    result_ids = [element.ids for element in result_ids]
+    result_ids = [element.ids for element in results]
+    result_dsts_top = [element.distances for element in results]
 
     concat_df = pd.DataFrame(index=range(len(np.array(result_ids).T[0])))
     for i in range(len(np.array(result_ids).T)):
@@ -70,16 +65,29 @@ def milvus_search(
             maping_df.iloc[np.array(result_ids).T[i]].reset_index().loc[:, ["label_id"]]
         )
         concat_df = pd.concat([concat_df, df], axis=1)
+
     concat_df["result"] = concat_df.mode(axis=1)[0].values.astype(int)
     predictions_label_id = concat_df.loc[:, "result"].values.astype(int)
+    indexes = [
+        i
+        for i, e in enumerate(list(concat_df.values[0][:-1]))
+        if e == predictions_label_id[0]
+    ]
+    dist_mean = np.array(result_dsts_top[0])[indexes].mean()
 
     with open("./pickles/mapper_faces.pickle", "rb") as handle:
         mapper_dict = pickle.load(handle)
 
-    predictions = [
-        remap_it(class_id, mapper_dict, decode=True)
-        for class_id in predictions_label_id
-    ]
+    if dist_mean <= 1:
+
+        predictions = [
+            remap_it(class_id, mapper_dict, decode=True)
+            for class_id in predictions_label_id
+        ]
+
+    else:
+        predictions = ["unknown"]
+
     return predictions
 
 
@@ -120,7 +128,9 @@ def insert_data_to_milvus_collection(
     # insert given data to collection
     collection = Collection("embeddings_faces")
     num_entities = collection.num_entities
-    log.info(f"num_entities before insert operation: {num_entities}", )
+    log.info(
+        f"num_entities before insert operation: {num_entities}",
+    )
 
     ids = [int(i) for i in range(num_entities, num_entities + len(labels))]
     data = [ids, [int(i) for i in labels], embeddings]
